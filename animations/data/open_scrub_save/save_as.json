@@ -1,0 +1,76 @@
+{
+ "filepath_tif": "/home/fo/data/demoMovie.tif",
+ "fs_hz": 10.0,
+ "frame_average": 10,
+ "raw": {
+  "shape": [
+   2000,
+   1,
+   1,
+   60,
+   80
+  ],
+  "dtype": "uint16",
+  "fs": null,
+  "num_timepoints": 2000,
+  "value_range": [
+   21,
+   16376
+  ]
+ },
+ "binned": {
+  "shape": [
+   200,
+   1,
+   1,
+   60,
+   80
+  ],
+  "num_timepoints": 200,
+  "fs": 1.0
+ },
+ "store_name": "tp00001-00200_ch01_zplane01.zarr",
+ "store_parent": "demoMovie.zarr",
+ "ome_version": "0.5",
+ "axes": [
+  "t",
+  "z",
+  "y",
+  "x"
+ ],
+ "pyramid_method": "mean",
+ "compression_level": 1,
+ "pyramid_max_layers": 3,
+ "pyramid_min_size_px": 64,
+ "levels": [
+  {
+   "path": "0",
+   "shape": [
+    200,
+    1,
+    60,
+    80
+   ],
+   "dtype": "uint16",
+   "shard_shape": [
+    200,
+    1,
+    60,
+    80
+   ],
+   "chunk_shape": [
+    1,
+    1,
+    60,
+    80
+   ],
+   "codecs": [
+    "sharding_indexed",
+    "bytes",
+    "gzip"
+   ],
+   "bytes_on_disk": 1503449
+  }
+ ],
+ "bytes_uncompressed": 1920000
+}

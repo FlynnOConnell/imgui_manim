@@ -1,0 +1,25 @@
+[build-system]
+requires = ["setuptools>=77", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "imgui_manim"
+version = "0.1.0"
+description = "manim animations of imaging pipeline steps, each built from a numpy model."
+readme = "README.md"
+requires-python = ">=3.12.7,<3.14"  # pml_utilities's
+authors = [{ name = "Flynn OConnell", email = "flynnoconnell@gmail.com" }]
+dependencies = [
+    "numpy>=1.23",
+    "pml_utilities @ git+https://github.com/FlynnOConnell/pml_utilities",  # imports as mbo_utilities; reads recordings
+]
+
+[project.optional-dependencies]
+dev = ["pytest>=7"]
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+pythonpath = ["src"]  # test the source, never an installed copy

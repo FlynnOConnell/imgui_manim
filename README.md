@@ -6,8 +6,9 @@ together.
 
 Each animation is a script in `animations/` built on `animations/kit.py` (manim as a drawing engine with a Cairo camera,
 no `Scene`). `kit.lesson_model(name)` loads `src/imgui_manim/lessons/<name>/model.py`, or imgui_ophys's model of that
-name when this repo has none, so `imgui_ophys` must be checked out beside this repo. It stands in empty modules for the
-lesson packages, so their `__init__` files (which import imgui_bundle) never run.
+name when this repo has none. It stands in empty modules for the lesson packages, so their `__init__` files (which import
+imgui_bundle) never run. The kit takes its colors from imgui_ophys's `palette.py`, so `imgui_ophys` must be checked out
+beside this repo for any animation to run.
 
 An animation is a `build()` returning nested AnimationGroups. `kit.timeline` begins every leaf in time order and
 `seek(t)` scrubs to any second, so the same build gives the stills, the mp4 and the gif. `Count` makes a number react to
@@ -37,9 +38,7 @@ One animation per page, drawn from the page's model. Each chapter adds one idea.
 uv run -p 3.12 animations/<page>.py --out <dir> [--stills-only] [--gif-width 720]
 ```
 
-The scripts declare their own dependencies (manim, numpy, pillow). Each writes an mp4, a gif and a PNG per chapter. The
-gifs here are 720 px at 10 fps. `subcellular` needs imgui_ophys's `worktree-subcellular` branch until it merges, because
-its model is only there.
+The scripts declare their own dependencies (manim, numpy, pillow). Each writes an mp4, a gif and a PNG per chapter.
 
 ## strip_registration
 

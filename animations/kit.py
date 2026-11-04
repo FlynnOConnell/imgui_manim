@@ -21,25 +21,17 @@ import manim as mn
 import numpy as np
 from PIL import Image
 
+DIR_SRC = Path(__file__).resolve().parents[1] / "src"
+DIR_SRC_OPHYS = Path(__file__).resolve().parents[2] / "imgui_ophys" / "src"  # the hands-on pages, checked out beside this repo
+sys.path.insert(0, str(DIR_SRC_OPHYS))
+
+from imgui_ophys.palette import ACCENT, BAR, DIM, EDGE, HIGHLIGHT, KEY, PINK, TEXT, TRACE, TRUTH  # noqa: E402, F401
+
 FPS = 20
 FONT = "Noto Sans"
 FRAME_WIDTH, FRAME_HEIGHT = 128 / 9, 8.0
 BG = (0.10, 0.10, 0.12)
-TEXT = (0.92, 0.92, 0.94)
-DIM = (0.62, 0.62, 0.65)
-EDGE = (0.35, 0.35, 0.37)
-TRACE = (0.70, 0.70, 0.72)
-BAR = (0.52, 0.52, 0.55)  # scale bars sit back a little from the traces
-TRUTH = (0.35, 0.85, 0.45)  # ground truth
-ACCENT = (0.40, 0.68, 1.00)
-KEY = (1.00, 0.80, 0.20)
-HIGHLIGHT = (0.922, 0.408, 0.204)
-PINK = (0.910, 0.482, 0.643)
 PARTS = ((0.165, 0.471, 0.839), (0.929, 0.631, 0.000), (0.106, 0.686, 0.478), (0.533, 0.529, 0.502), (0.580, 0.404, 0.741))
-
-
-DIR_SRC = Path(__file__).resolve().parents[1] / "src"
-DIR_SRC_OPHYS = Path(__file__).resolve().parents[2] / "imgui_ophys" / "src"  # the hands-on pages, checked out beside this repo
 
 
 def lesson_model(name: str):

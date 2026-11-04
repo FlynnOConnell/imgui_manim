@@ -10,15 +10,12 @@ simulator (GCaMP6f, 30 Hz); drawn with kit.py.
     uv run -p 3.12 animations/traces.py --out <dir> [--stills-only] [--gif-width 720]
 """
 
-import sys
-
 import manim as mn
 import numpy as np
 
 import kit
 from kit import ACCENT, DIM, KEY, TEXT, TRACE, TRUTH, Count, at, axes_points, chapter, color, hbar, label, path, plain_axes, put, replace, timeline, vbar
 
-sys.path.insert(0, str(kit.DIR_SRC_OPHYS))
 from imgui_ophys import sim  # noqa: E402
 
 TITLE = "Traces: from a spike to a recorded dF/F"

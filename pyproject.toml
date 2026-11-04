@@ -8,6 +8,8 @@ version = "0.1.0"
 description = "manim animations of imaging pipeline steps, each built from a numpy model."
 readme = "README.md"
 requires-python = ">=3.12.7,<3.14"  # pml_utilities's
+license = "MIT"
+license-files = ["LICENSE"]
 authors = [{ name = "Flynn OConnell", email = "flynnoconnell@gmail.com" }]
 dependencies = [
     "numpy>=1.23",
@@ -16,6 +18,24 @@ dependencies = [
 
 [project.optional-dependencies]
 dev = ["pytest>=7"]
+window = [
+    "imgui-bundle==1.92.801",
+    "imgui-data-loader>=0.2.0",
+    "imgui_ophys",
+    "manim>=0.22",
+    # manim 0.22.0 can't draw an ImageMobject with pillow 13 (fixed on manim's main in #5074, not yet released)
+    "pillow<13",
+    "matplotlib",
+    "torch",
+    "masknmf",
+    "tifffile",
+]
+
+[project.scripts]
+imgui-manim-window = "imgui_manim.window.app:run"
+
+[tool.uv.sources]
+imgui_ophys = { path = "../imgui_ophys", editable = true }
 
 [tool.setuptools.packages.find]
 where = ["src"]

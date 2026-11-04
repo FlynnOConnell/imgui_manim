@@ -87,3 +87,85 @@ uv run -p 3.12 animations/compression.py --run <npz> --out <dir> --width 1920
 ```
 
 `--block auto` chooses the block whose kept candidates look most like one cell: a skewed trace over a compact, centered image, in a block where the second pass keeps more than the first and every kept candidate fits the four rows drawn. It writes `<npz>_blocks.png` with the best blocks; pass one with `--block y,x`. Compression is cached, so another block takes about 90 s. `--uint16` is for Bruker exports, which store uint16 pixels as int16.
+
+## Miller Brain Studio
+
+Three animations of the Studio (`mbo`, from [pml_utilities](https://github.com/FlynnOConnell/pml_utilities)). Every format and feature on screen is the package's own, and the movie is CaImAn's `demoMovie.tif`.
+
+`graphical_abstract`: the files the Studio reads flow in, its core features appear while a movie plays, the files it writes fan out, and the pipelines it runs sit below with their results coming back in.
+
+![graphical_abstract](docs/animations/graphical_abstract.gif)
+
+`suite2p_demo`: the Studio's own windows from the command line to suite2p's results. `mbo ~/data/demoMovie.tif` opens the viewer, Set Metadata gets the frame rate, the Run tab runs suite2p, the ROIs tab shows every ROI the run found, and three grouped cells plot their dF/F on the Traces panel.
+
+![suite2p_demo](docs/animations/suite2p_demo.gif)
+
+`open_scrub_save`: a walkthrough of the Studio's window, from opening the movie through binning to Save as.
+
+![open_scrub_save](docs/animations/open_scrub_save.gif)
+
+```
+uv run -p 3.12 animations/<name>.py --out <dir> [--stills-only] [--gif-width 720]
+```
+
+`graphical_abstract` and `open_scrub_save` read `~/data/demoMovie.tif`. `suite2p_demo` reads the windows and the run stored in `animations/data/suite2p_demo`, which `scripts/studio/` regenerates in an environment with pml_utilities and suite2p: `run_suite2p.py`, `export_suite2p.py`, then `capture_windows.py`. `export_save_as.py` writes the numbers `open_scrub_save` shows.
+
+## masknmf_pipeline
+
+masknmf's pipeline as five manim scenes, from a movie to its traces: `MovieToTrace`, `Registration`, `Compression`, `CompressedMovie` and `SeedsAndDemix`. These are plain `mn.Scene`s rather than kit animations, drawn from one masknmf run on a simulated movie.
+
+```
+uv run -p 3.12 animations/masknmf_pipeline.py [<scene> ...] --out <dir> [-q high_quality]
+```
+
+`animations/data/masknmf_pipeline/run.npz` cannot be regenerated, because its exporter needed imgui_masknmf, which no longer exists.
+
+## The window
+
+`imgui-manim-window` explains how masknmf's compression splits a movie into three movies:
+
+    registered = background + signal + residual
+
+Each page is one manim animation, built from the movie itself and drawn by manim's Cairo camera into an imgui-bundle window. A timeline scrubs the animation forward or back while the movie plays inside its panels. Click a pixel to follow it on every page.
+
+![The Overview animation on demoMovie.tif](docs/animations/masknmf_overview.gif)
+
+masknmf's `CompressionArray` rebuilds a registered frame as
+
+    noise SD x (U V) + mean image + spatial trend x temporal trend
+
+and `decomposition.split_pmd` names the parts:
+
+| piece | contents | in masknmf |
+|-------|----------|------------|
+| background | the mean image plus a slow trend (the maximin spline detrender) | `mean_image + spatial_trend_basis @ temporal_trend_basis` |
+| signal | noise SD x U V: a few smooth components per block, blended | `noise_variance_image * (spatial_compressed @ temporal_compressed)` |
+| residual | registered - background - signal | `CompressionResidualArray` |
+
+| page | chapters |
+|------|----------|
+| [Overview](docs/window/overview.png) | the registered movie shrinks into the first of four panels: = background + signal + residual; four traces per followed pixel: the picked one, then the highest signal SNR |
+| [Raw movie](docs/window/raw.png) | a stack of recorded frames; recorded beside registered; one pixel's trace, recorded and registered |
+| [Background](docs/window/background.png) | the mean image; the trend at one pixel; the background movie; registered - background, the fluctuations |
+| [Residual](docs/window/residual.png) | registered - background - signal; the residual at one pixel against 2 noise SDs; its histogram over every pixel against a normal curve |
+
+The `compression` animation above covers the blocks and the roughness test. The window has no page for them, because its block data came from imgui_masknmf.
+
+Under the animation are the timeline (drag to scrub), the chapters (click one to play from its start), the current chapter's paragraph with this movie's numbers in it, and the movie's frame slider. Space plays and pauses, left and right step chapters, up and down step pages, Esc goes to Overview, and Ctrl +, Ctrl - and Ctrl 0 resize.
+
+```bash
+uv venv -p 3.12 && uv pip install -e ".[dev,window]"
+imgui-manim-window --movie <tif or npy> --fs <Hz> [--negative]
+```
+
+`--negative` flips a movie from an indicator that dims with activity. `imgui_ophys` must be checked out beside this repo, and masknmf comes at the version pml_utilities pins. manim draws with cairo and pango, so pycairo and manimpango build from source against the system libraries on Linux. No LaTeX is needed.
+
+`pytest` runs the model tests. With the `window` extra installed it also runs the window's tests, and one of them opens a hidden window.
+
+```bash
+python scripts/window/screenshot.py --movie <tif> --fs <Hz>                  # docs/window/<page>.png
+python scripts/window/overview_gif.py --movie <tif> --fs <Hz>                # docs/animations/masknmf_overview.gif
+python scripts/window/demo.py --movie <tif> --fs <Hz> --out tour.mp4         # the real window on a scripted tour
+```
+
+See [ARCHITECTURE.md](ARCHITECTURE.md).

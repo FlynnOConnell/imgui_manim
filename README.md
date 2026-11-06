@@ -34,11 +34,33 @@ One animation per page, drawn from the page's model. Each chapter adds one idea.
 
 ![Subcellular voltage](docs/animations/subcellular.gif)
 
+The cell in the Subcellular animation is a real one: MICrONS Consortium 2025, www.microns-explorer.org, CC BY 4.0, not this repository's license. Its [source and terms](https://github.com/FlynnOConnell/imgui_ophys/blob/main/src/imgui_ophys/lessons/subcellular/neuron/README.md) are in imgui_ophys.
+
 ```
 uv run -p 3.12 animations/<page>.py --out <dir> [--stills-only] [--gif-width 720]
 ```
 
 The scripts declare their own dependencies (manim, numpy, pillow). Each writes an mp4, a gif and a PNG per chapter.
+
+## synapse_to_soma
+
+Four releases of glutamate at one synapse and a four-spike burst at the soma of one real cell, as the traces each leaves at the spine, the branch and the soma, with the voltage running over the cell.
+
+![synapse_to_soma](docs/animations/synapse_to_soma.gif)
+
+`epsp` takes the synapse further: one release, the EPSP it gives, and inputs on neighbouring spines summing until the branch fires a dendritic spike.
+
+![epsp](docs/animations/epsp.gif)
+
+`bap` takes the soma further: one spike as a wave up the dendrites, what a 1 kHz camera makes of it, and how a bAP after glutamate opens NMDA receptors.
+
+![bap](docs/animations/bap.gif)
+
+```
+uv run -p 3.12 animations/<name>.py --out <dir> [--stills-only] [--gif-width 720]
+```
+
+All three share `animations/neuron_kit.py`, so they use one cell, one layout and one set of colors. The cell and the synapse are real and every voltage is simulated: MICrONS Consortium 2025, www.microns-explorer.org, CC BY 4.0, not this repository's license. Its [source, terms and limits](src/imgui_manim/lessons/synapse_to_soma/neuron/README.md) sit beside the images, and `scripts/synapse_to_soma/export_neuron.py` writes that folder.
 
 ## strip_registration
 

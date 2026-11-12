@@ -1,6 +1,6 @@
 # /// script
 # requires-python = ">=3.11"
-# dependencies = ["cloud-volume", "numba", "numpy", "pillow", "scipy"]
+# dependencies = ["cloud-volume", "imgui_ophys @ git+https://github.com/FlynnOConnell/imgui_ophys", "numba", "numpy", "pillow", "scipy"]
 # ///
 """
 Writes the synapse_to_soma lesson's neuron folder: the panels of the MICrONS cell imgui_ophys's Subcellular page draws,
@@ -9,15 +9,14 @@ cell.png from the soma and from Spine 1, which is what lets a voltage run along 
 
     uv run -p 3.12 scripts/synapse_to_soma/export_neuron.py
 
-The volumes are public and need no account. The mesh is ~/data/microns_pyramidal (fetch_microns_cell.py in the topic
-below); the renderer and the cell's coordinates are that topic's mesh_render.py and neuron_em.py.
+The volumes are public and need no account. fetch_microns_cell.py beside this file downloads the mesh.
 """
 
 import argparse
 import shutil
-import sys
 from pathlib import Path
 
+import imgui_ophys
 import numpy as np
 import scipy.ndimage
 import scipy.sparse
@@ -25,12 +24,9 @@ import scipy.sparse.csgraph
 from cloudvolume import CloudVolume
 from PIL import Image, ImageFilter
 
-DIR_TOPIC_CODE = Path.home() / "agent_assets/imgui_ophys/20261029_subcellular-lesson/code"
-sys.path.insert(0, str(DIR_TOPIC_CODE))
-import mesh_render as R  # noqa: E402
-import neuron_em as E  # noqa: E402
+import mesh_render as R
 
-DIR_PANELS = Path.home() / "repos/imgui_ophys/src/imgui_ophys/lessons/subcellular/neuron"
+DIR_PANELS = Path(imgui_ophys.__file__).parent / "lessons/subcellular/neuron"
 DIR_LESSON = Path(__file__).resolve().parents[2] / "src/imgui_manim/lessons/synapse_to_soma/neuron"
 PANELS = ("cell.png", "branch.png", "spine.png", "soma.png", "neuron.json")
 URL_EM = "precomputed://https://bossdb-open-data.s3.amazonaws.com/iarpa_microns/minnie/minnie65/em"
@@ -43,12 +39,17 @@ SYNAPSE_ZOOM = 3
 SYNAPSE_LEVELS = (70.0, 150.0)
 PATH_STEP_UM = 0.1
 UNREACHED = 65535
+VIEW = np.eye(3, dtype=np.float32) * np.array([1, 1, -1], np.float32)  # x right, y down (pia up), z toward the viewer
+VOXEL_UM = 1.0
+INFLATE_UM = 0.3  # the whole-cell panel only: true branches are about 1 px wide at this scale
+SOMA = np.array([1365.2, 765.9, 817.7], np.float32)  # um, the mesh's density peak
+SPINE_1 = np.array([1430.54, 671.56, 769.46], np.float32)  # um: a mushroom spine
 
 
 def cutout(volume: CloudVolume) -> np.ndarray:
     """The block around Spine 1 at the volume's finest resolution, (x, y, z)."""
     resolution = np.array(volume.meta.resolution(0), float)
-    center = E.SPINE_1.astype(float) * 1000.0
+    center = SPINE_1.astype(float) * 1000.0
     start, stop = np.floor((center - HALF_NM) / resolution).astype(int), np.ceil((center + HALF_NM) / resolution).astype(int)
     return np.asarray(volume[start[0]:stop[0], start[1]:stop[1], start[2]:stop[2]])[..., 0]
 
@@ -79,7 +80,7 @@ def synapse_panels(filepath_block: Path) -> tuple:
 
 def voxel_graph(vertices: np.ndarray) -> tuple:
     """The occupied 1 um voxels as a graph, since the mesh is chunks that share no vertices, and each vertex's voxel."""
-    index = np.floor(vertices / E.VOXEL_UM).astype(np.int64)
+    index = np.floor(vertices / VOXEL_UM).astype(np.int64)
     index -= index.min(axis=0)
     dims = index.max(axis=0) + 3
     keys = (index[:, 0] + 1) * dims[1] * dims[2] + (index[:, 1] + 1) * dims[2] + index[:, 2] + 1
@@ -91,7 +92,7 @@ def voxel_graph(vertices: np.ndarray) -> tuple:
         hit = voxels[at] == neighbors
         rows.append(np.where(hit)[0])
         cols.append(at[hit])
-        weights.append(np.full(hit.sum(), E.VOXEL_UM * np.sqrt(a * a + b * b + c * c)))
+        weights.append(np.full(hit.sum(), VOXEL_UM * np.sqrt(a * a + b * b + c * c)))
     graph = scipy.sparse.coo_matrix((np.concatenate(weights), (np.concatenate(rows), np.concatenate(cols))), shape=(len(voxels), len(voxels))).tocsr()
     return graph, voxel_of_vertex
 
@@ -104,10 +105,10 @@ def path_from(graph: scipy.sparse.csr_matrix, voxel_of_vertex: np.ndarray, verti
 
 def path_pixels(vertices: np.ndarray, normals: np.ndarray, faces: np.ndarray, um: np.ndarray) -> np.ndarray:
     """Path distance per pixel of cell.png in PATH_STEP_UM steps, uint16; pixels off the cell are UNREACHED."""
-    size_cell, um_cell = (900, 1400), 0.50  # as neuron_em.py draws cell.png
-    center_cell = E.SOMA + np.array([0.0, -135.0, 0.0], np.float32)
+    size_cell, um_cell = (900, 1400), 0.50  # as cell.png is drawn
+    center_cell = SOMA + np.array([0.0, -135.0, 0.0], np.float32)
     reached = np.where(np.isfinite(um), um, UNREACHED * PATH_STEP_UM)
-    depth, _, value = R.render(vertices, normals, faces, center_cell, E.VIEW, um_cell, size_cell, scalars=reached)
+    depth, _, value = R.render(vertices, normals, faces, center_cell, VIEW, um_cell, size_cell, scalars=reached)
     steps = np.where(np.isfinite(depth), np.minimum(np.round(value / PATH_STEP_UM), UNREACHED), UNREACHED)
     return steps.reshape(size_cell[1], 2, size_cell[0], 2).min(axis=(1, 3)).astype(np.uint16)  ## the render's 2x supersampling: any drawn sample counts
 
@@ -127,9 +128,9 @@ def main(dir_mesh: Path, dir_out: Path) -> None:
     vertices = (data["vertices"] / 1000.0).astype(np.float32)
     faces = data["faces"]
     normals = R.vertex_normals(vertices, faces)
-    inflated = vertices + E.INFLATE_UM * normals
+    inflated = vertices + INFLATE_UM * normals
     graph, voxel_of_vertex = voxel_graph(vertices)
-    soma, spine = (path_pixels(inflated, normals, faces, path_from(graph, voxel_of_vertex, vertices, point)) for point in (E.SOMA, E.SPINE_1))
+    soma, spine = (path_pixels(inflated, normals, faces, path_from(graph, voxel_of_vertex, vertices, point)) for point in (SOMA, SPINE_1))
     np.savez_compressed(dir_out / "path.npz", soma=soma, spine=spine, step_um=PATH_STEP_UM, unreached=UNREACHED,
                         outline_bouton=np.packbits(outlines["bouton"]), outline_spine=np.packbits(outlines["spine"]), outline_shape=np.array(outlines["spine"].shape))
     print(f"wrote {dir_out}: path from soma covers {100 * np.mean(soma != UNREACHED):.1f}% of the panel")

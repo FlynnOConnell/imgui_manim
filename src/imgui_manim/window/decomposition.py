@@ -56,7 +56,7 @@ class Decomposition:
 
     @property
     def stored_fraction(self) -> float:
-        """What U (its nonzeros) and V hold, as a fraction of the movie's values."""
+        """The values U (its nonzeros) and V hold, as a fraction of the movie's values."""
         pixels = self.shape[0] * self.shape[1]
         return (self.nonzero_u + self.rank * self.n_frames) / (pixels * self.n_frames)
 

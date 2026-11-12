@@ -1,5 +1,5 @@
 """
-What the lesson animations share: manim as a drawing engine without a Scene (a Cairo camera, frames piped to ffmpeg),
+The kit the animations share: manim as a drawing engine without a Scene (a Cairo camera, frames piped to ffmpeg),
 chapters played one after the other and scrubbed to any time, text, axes, scale bars, images and small grids, and
 the command line that renders stills, an mp4 and a gif.
 

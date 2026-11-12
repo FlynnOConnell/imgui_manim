@@ -1,5 +1,5 @@
 """
-What the synapse_to_soma, epsp and bap animations share, on top of kit.py: the MICrONS cell as a small panel that a
+The kit the synapse_to_soma, epsp and bap animations share, on top of kit.py: the MICrONS cell as a small panel that a
 simulated voltage can run along, its round close-ups, the synapse's micrograph, and traces stacked on one time axis
 with a cursor. All three use the same cell, colors and layout, so one can cut into another.
 """

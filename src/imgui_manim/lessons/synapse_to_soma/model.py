@@ -80,7 +80,7 @@ class Events:
 
 @dataclass
 class Traces:
-    """What each site shows between two times, noiseless: the indicator's -dF/F (depolarization up) and the glutamate indicator's dF/F."""
+    """Each site's noiseless traces between two times: the indicator's -dF/F (depolarization up) and the glutamate indicator's dF/F."""
 
     t: np.ndarray  # frame times, s
     dff: dict  # site -> -dF/F per frame

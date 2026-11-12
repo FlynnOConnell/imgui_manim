@@ -110,7 +110,7 @@ def block_starts(size: int, block: int = BLOCK) -> list:
 
 def row_major_order(groups_y: list, groups_x: list) -> list:
     """
-    Which visit holds each block, in row-major order: masknmf visits blocks tile by tile, and the two orders differ as soon
+    The visit that holds each block, in row-major order: masknmf visits blocks tile by tile, and the two orders differ as soon
     as a movie needs more than one tile.
 
     Parameters
@@ -173,7 +173,7 @@ def skewness(traces: np.ndarray) -> np.ndarray:
 
 def cell_scores(spatial: np.ndarray, temporal: np.ndarray) -> np.ndarray:
     """
-    How much each of a block's candidates looks like one cell: the skewness of its trace over the spread of its image.
+    A score per candidate of a block for looking like one cell: the skewness of its trace over the spread of its image.
 
     Parameters
     ----------
@@ -243,7 +243,7 @@ def gain_on_raw(traces: np.ndarray, raw: np.ndarray, n_smooth: int = 5) -> np.nd
 
 
 def rest_text(kept: np.ndarray, n_rows: int = N_ROWS) -> str:
-    """What became of the candidates under the n_rows drawn."""
+    """States whether the candidates under the n_rows drawn were kept or dropped."""
     n_kept = int(kept[n_rows:].sum())
     return f"Candidates {n_rows + 1} to {kept.size}: {'dropped' if n_kept == 0 else f'{n_kept} kept'}"
 

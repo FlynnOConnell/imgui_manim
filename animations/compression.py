@@ -61,7 +61,7 @@ CELL_OVERLAP = -0.01  # a grid's gap: cells overlap, or they show seams and a co
 
 @dataclass
 class RowScale:
-    """What every row's trace shares: half its height in noise SDs, and the frame rate in Hz."""
+    """The scale every row's trace shares: half its height in noise SDs, and the frame rate in Hz."""
 
     half_height: float
     fs: float

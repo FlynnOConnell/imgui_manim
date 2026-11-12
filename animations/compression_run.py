@@ -228,7 +228,7 @@ def save_pass(recorder: Recorder, shape: tuple, dir_cache: Path, name: str) -> N
 
 
 def load_pass(dir_cache: Path, name: str) -> dict:
-    """What save_pass wrote: spatial (n_blocks, height, width, n_candidates) and temporal (n_blocks, n_candidates, n_frames) memory-mapped."""
+    """Loads a pass save_pass wrote: spatial (n_blocks, height, width, n_candidates) and temporal (n_blocks, n_candidates, n_frames) memory-mapped."""
     with np.load(dir_cache / f"{name}.npz") as saved:
         record = {key: saved[key] for key in saved.files}
     for key in ("spatial", "temporal"):
@@ -490,7 +490,7 @@ def block_at(record: dict, index: int) -> dict:
 
 
 def read_cache(dir_cache: Path) -> dict:
-    """What compress_into saved, the compressed movies on the GPU."""
+    """Loads the run compress_into saved, with the compressed movies on the GPU."""
     details = json.loads((dir_cache / FILENAME_RUN).read_text())
     model = denoising.TotalVarianceTemporalDenoiser(learning_rate=details["training"]["learning_rate"], max_epochs=details["training"]["epochs"])
     model.load_state_dict(torch.load(dir_cache / FILENAME_DENOISER, map_location=KWARGS_STRATEGY["device"]))

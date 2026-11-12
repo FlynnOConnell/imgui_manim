@@ -65,7 +65,7 @@ class Story:
 
 @dataclass
 class Hit:
-    """Where a panel sits on the canvas, as fractions of its width and height."""
+    """A panel's rectangle on the canvas, as fractions of its width and height."""
 
     left: float
     top: float

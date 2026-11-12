@@ -76,7 +76,7 @@ class Drawing:
 
 @dataclass
 class Stage:
-    """What the manim thread keeps between drawings. Only that thread touches it."""
+    """The manim thread's state between drawings. Only that thread touches it."""
 
     d: Decomposition
     stories: dict = field(default_factory=dict)  # page -> (pixel, Story, notes)

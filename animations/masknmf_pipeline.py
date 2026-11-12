@@ -440,7 +440,7 @@ class Compression(PipelineScene):
 
 
 class CompressedMovie(PipelineScene):
-    """How many components cover each pixel, and the movie rebuilt from U V next to the registered one."""
+    """The number of components covering each pixel, and the movie rebuilt from U V next to the registered one."""
 
     def construct(self):
         run = load_run()

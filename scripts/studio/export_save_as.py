@@ -3,7 +3,7 @@ The numbers the open-scrub-save animation shows, from mbo_utilities itself: the 
 reads it, the frame-averaged view, and an OME-Zarr written with the Save As dialog's zarr options (sharded, OME,
 gzip level 1, pyramid up to 3 levels). Writes animations/data/open_scrub_save/save_as.json.
 
-    ~/repos/pml_utilities/.venv/bin/python code/export_save_as.py
+    python scripts/studio/export_save_as.py
 """
 
 import json
@@ -65,7 +65,7 @@ def main() -> None:
     levels = level_info(store)
     shape_binned = [int(s) for s in binned.shape]
     out = {
-        "filepath_tif": str(FILEPATH_TIF),
+        "filepath_tif": FILEPATH_TIF.name,
         "fs_hz": FS_HZ,
         "frame_average": FRAME_AVERAGE,
         "raw": {"shape": [int(s) for s in raw.shape], "dtype": str(raw.dtype), "fs": raw.metadata.get("fs"),

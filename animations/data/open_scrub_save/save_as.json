@@ -1,5 +1,5 @@
 {
- "filepath_tif": "/home/fo/data/demoMovie.tif",
+ "filepath_tif": "demoMovie.tif",
  "fs_hz": 10.0,
  "frame_average": 10,
  "raw": {

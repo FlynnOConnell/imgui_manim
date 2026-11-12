@@ -1,0 +1,17 @@
+{
+  "name": "imgui-manim",
+  "description": "The Claude skill that built imgui_manim's animations.",
+  "owner": {
+    "name": "Flynn OConnell",
+    "url": "https://github.com/FlynnOConnell"
+  },
+  "plugins": [
+    {
+      "name": "manim-animation",
+      "source": "./plugins/manim-animation",
+      "description": "Build a 30 to 60 s manim animation that explains one method or metric from a numpy model, chapter by chapter, with a number that reacts to the picture.",
+      "category": "visualization",
+      "tags": ["manim", "animation", "explainer", "neuroscience"]
+    }
+  ]
+}

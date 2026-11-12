@@ -2,6 +2,12 @@
 
 Two things here draw with manim through a Cairo camera, without a `Scene`, and scrub to any time. `animations/kit.py` renders a script to stills, an mp4 and a gif; it says `Timeline`, `timeline()` and `seek()`. `src/imgui_manim/window/canvas.py` draws into an imgui window from a worker thread; it says `Story`, `story()` and `set_story()`. `animations/masknmf_pipeline.py` is the exception: plain `mn.Scene`s rendered by manim itself.
 
+`plugins/manim-animation/skills/manim-animation/kit.py` is `animations/kit.py` with the colors written in and without `lesson_model`, so it runs outside this repository. A change to one kit goes into the other by hand.
+
+## The boundary with imgui_ophys
+
+imgui_ophys is a normal dependency, in one direction. This repo imports its models, `sim.py` and `palette.py`; imgui_ophys imports nothing from here. Each animation script declares it in its PEP 723 header, and `pyproject.toml` declares it for the package. `kit.lesson_model` stands in empty modules for the lesson packages, so their `__init__` files never run and rendering never imports imgui_bundle, although it is installed. The window is the one place imgui code runs here. It stays in this repo because manim draws it, and it takes the UI scale from imgui_ophys's `config`.
+
 ## Window modules
 
 - `decomposition.py`: `load_movie` reads a tif or npy; `compress_movie` registers and compresses it with masknmf; `split_pmd` turns that into a `Decomposition`, which holds the recorded and registered movies, the three pieces, and what the stories draw: the mean image, the trend, the noise SD and display ranges. `decompose` runs all three. `top_pixels` ranks pixels by signal SD over noise SD, kept apart, for the Overview's trace rows.

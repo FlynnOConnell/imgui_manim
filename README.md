@@ -1,193 +1,178 @@
 # imgui_manim
 
-manim animations of imaging pipeline steps. This repo describes a method; its companion `imgui_ophys` lets you work the
-same method by hand, one page per step. Both read one numpy model, so a model change reaches the animation and the page
-together.
+Short [manim](https://www.manim.community) animations that explain the steps of a neuroscience imaging pipeline, from motion correction to the voltage in a single dendrite. Each one is a script built on a numpy model or a stored run, so the traces and numbers on screen are computed, not drawn by hand.
 
-Each animation is a script in `animations/` built on `animations/kit.py` (manim as a drawing engine with a Cairo camera,
-no `Scene`). `kit.lesson_model(name)` loads `src/imgui_manim/lessons/<name>/model.py`, or imgui_ophys's model of that
-name when this repo has none. It stands in empty modules for the lesson packages, so their `__init__` files (which import
-imgui_bundle) never run. The kit takes its colors from imgui_ophys's `palette.py`, so `imgui_ophys` must be checked out
-beside this repo for any animation to run.
+![Signal quality (d')](docs/animations/dprime.gif)
 
-An animation is a `build()` returning nested AnimationGroups. `kit.timeline` begins every leaf in time order and
-`seek(t)` scrubs to any second, so the same build gives the stills, the mp4 and the gif. `Count` makes a number react to
-a morph; `Play` and `Recolor` step an image or a grid through frames.
+## Run one
 
-## imgui_ophys pages
+You need [uv](https://docs.astral.sh/uv/), ffmpeg, and the cairo and pango libraries manim draws with. No LaTeX is needed.
 
-One animation per page, drawn from the page's model. Each chapter adds one idea. Titles name the content ("Add noise",
-"Truncated SVD") or are absent, traces carry scale bars instead of axes, labels state the thing and its provenance
-("Ground truth spikes (simulated)"), and a number counts along as the picture morphs.
-
-![Motion correction](docs/animations/motion.gif)
-
-![Demixing](docs/animations/nmf.gif)
-
-![Traces](docs/animations/traces.gif)
-
-![Signal quality](docs/animations/dprime.gif)
-
-![SVD](docs/animations/svd.gif)
-
-![SILo](docs/animations/silo.gif)
-
-![Subcellular voltage](docs/animations/subcellular.gif)
-
-The cell in the Subcellular animation is a real one: MICrONS Consortium 2025, www.microns-explorer.org, CC BY 4.0, not this repository's license. Its [source and terms](https://github.com/FlynnOConnell/imgui_ophys/blob/main/src/imgui_ophys/lessons/subcellular/neuron/README.md) are in imgui_ophys.
-
-```
-uv run -p 3.12 animations/<page>.py --out <dir> [--stills-only] [--gif-width 720]
+```bash
+sudo pacman -S uv ffmpeg cairo pango                                         # Arch
+sudo apt install ffmpeg build-essential python3-dev libcairo2-dev libpango1.0-dev   # Debian, Ubuntu; uv from its site
+brew install uv ffmpeg cairo pango pkg-config                                # macOS
 ```
 
-The scripts declare their own dependencies (manim, numpy, pillow). Each writes an mp4, a gif and a PNG per chapter.
+The text is set in Noto Sans. Without that font Pango substitutes another, and labels shift.
 
-## synapse_to_soma
-
-Four releases of glutamate at one synapse and a four-spike burst at the soma of one real cell, as the traces each leaves at the spine, the branch and the soma, with the voltage running over the cell.
-
-![synapse_to_soma](docs/animations/synapse_to_soma.gif)
-
-`epsp` takes the synapse further: one release, the EPSP it gives, and inputs on neighbouring spines summing until the branch fires a dendritic spike.
-
-![epsp](docs/animations/epsp.gif)
-
-`bap` takes the soma further: one spike as a wave up the dendrites, what a 1 kHz camera makes of it, and how a bAP after glutamate opens NMDA receptors.
-
-![bap](docs/animations/bap.gif)
-
-```
-uv run -p 3.12 animations/<name>.py --out <dir> [--stills-only] [--gif-width 720]
+```bash
+git clone https://github.com/FlynnOConnell/imgui_manim
+cd imgui_manim
+uv run -p 3.12 animations/dprime.py --out out/dprime
 ```
 
-All three share `animations/neuron_kit.py`, so they use one cell, one layout and one set of colors. The cell and the synapse are real and every voltage is simulated: MICrONS Consortium 2025, www.microns-explorer.org, CC BY 4.0, not this repository's license. Its [source, terms and limits](src/imgui_manim/lessons/synapse_to_soma/neuron/README.md) sit beside the images, and `scripts/synapse_to_soma/export_neuron.py` writes that folder.
+Each script declares its own dependencies, so `uv run` installs them on the first run. The run prints d' for each simulated cell, then the files it wrote to `--out`: one PNG per chapter, `dprime.mp4` and `dprime.gif`. It takes about 45 s on a desktop CPU.
 
-## strip_registration
+| option | effect |
+|--------|--------|
+| `--out <dir>` | the output folder, required |
+| `--stills-only` | stops after the PNGs, in about 4 s |
+| `--width <px>` | width of the mp4 and the PNGs, 1280 by default |
+| `--gif-width <px>` | width of the gif, 960 by default |
 
-A thin strip drifts over a dendrite and StripRegistration adds each aligned frame to the template where it landed. A padding pixel turns blue as frames cover it and joins the template at 100.
+Every script in `animations/` runs this way, except where its section below says otherwise. manim's dependency pydub prints `SyntaxWarning: invalid escape sequence` on Python 3.12; the render is unaffected.
 
-![strip_registration](docs/animations/strip_registration.gif)
+## Animations
 
-```
-uv run -p 3.12 animations/strip_registration.py --out <dir> [--stills-only] [--gif-width 720]
-```
+The name under each animation is its script in `animations/`.
 
-Needs `uv` and `ffmpeg` on PATH. Model tests: `pytest`.
+### Imaging pipeline
 
-## silo_activity
+Each of these has a page in [imgui_ophys](https://github.com/FlynnOConnell/imgui_ophys), where you work the same step by hand on the same model.
 
-SILo's activity image builds up on a simulated strip: each space-time maximum of the matched-filtered movie adds its square to its pixel, and only the synapses accumulate. It uses the SILo page's model; `silo` above is the whole method.
+<table>
+<tr>
+<td width="50%"><img src="docs/animations/motion.gif" alt="Motion correction"><br><code>motion</code>: registering every frame to a reference image</td>
+<td width="50%"><img src="docs/animations/nmf.gif" alt="Demixing"><br><code>nmf</code>: a movie as footprints x traces, fitted by HALS</td>
+</tr>
+<tr>
+<td><img src="docs/animations/traces.gif" alt="Traces"><br><code>traces</code>: from a spike to a recorded dF/F</td>
+<td><img src="docs/animations/dprime.gif" alt="Signal quality"><br><code>dprime</code>: a measure of how well spikes stand out from noise</td>
+</tr>
+<tr>
+<td><img src="docs/animations/svd.gif" alt="SVD"><br><code>svd</code>: an image as a sum of rank-1 pieces</td>
+<td><img src="docs/animations/silo.gif" alt="SILo"><br><code>silo</code>: synapses found from their events, then their traces fitted</td>
+</tr>
+</table>
 
-![silo_activity](docs/animations/silo_activity.gif)
+### One real cell
 
-```
-uv run -p 3.12 animations/silo_activity.py --out <dir> [--stills-only] [--gif-width 720]
-```
+These four show one pyramidal cell from the MICrONS dataset. The cell and the synapse are real and every voltage is simulated.
 
-## compression
+<table>
+<tr>
+<td width="50%"><img src="docs/animations/synapse_to_soma.gif" alt="A synapse and a soma burst"><br><code>synapse_to_soma</code>: four glutamate releases and a soma burst, as the traces each leaves at spine, branch and soma</td>
+<td width="50%"><img src="docs/animations/epsp.gif" alt="EPSP"><br><code>epsp</code>: one release, and inputs summing until the branch fires a dendritic spike</td>
+</tr>
+<tr>
+<td><img src="docs/animations/bap.gif" alt="bAP"><br><code>bap</code>: a spike running back up the dendrites, and how it opens NMDA receptors</td>
+<td><img src="docs/animations/subcellular.gif" alt="Subthreshold voltage"><br><code>subcellular</code>: a dendrite's potential below the level that fires a spike</td>
+</tr>
+</table>
 
-masknmf's compression and its denoising pass on a simulated two-photon movie: blocks, block SVD, the roughness test against noise, the blind-spot network, the second pass, and a closing table of correlation and amplitude against the true traces. The figures come from a real masknmf run stored in `src/imgui_manim/lessons/compression/run.npz`.
+Cell images: MICrONS Consortium 2025, [www.microns-explorer.org](https://www.microns-explorer.org), CC BY 4.0, not this repository's license. Their [source, terms and limits](src/imgui_manim/lessons/synapse_to_soma/neuron/README.md) sit beside the images.
 
-![compression](docs/animations/compression.gif)
+### Methods in detail
 
-```
-uv run -p 3.12 animations/compression.py --out <dir> [--stills-only] [--gif-width 720]
-```
+<table>
+<tr>
+<td width="50%"><img src="docs/animations/strip_registration.gif" alt="StripRegistration"><br><code>strip_registration</code>: a thin strip drifts over a dendrite and each aligned frame joins the template</td>
+<td width="50%"><img src="docs/animations/silo_activity.gif" alt="SILo activity image"><br><code>silo_activity</code>: SILo's activity image building up, where only the synapses accumulate</td>
+</tr>
+<tr>
+<td><img src="docs/animations/compression.gif" alt="masknmf compression"><br><code>compression</code>: masknmf's compression and denoising, from a real masknmf run</td>
+<td></td>
+</tr>
+</table>
 
-To regenerate `run.npz` (about 7 min on a GPU; training is not deterministic, so the numbers shift a little; delete `~/.cache/imgui_manim/compression_simulated` to compress again):
+`masknmf_pipeline` has no gif. It is masknmf's pipeline as five plain manim scenes, from a movie to its traces:
 
-```
-PYTHONPATH=~/repos/masknmf-toolbox ~/envs/pml/.venv/bin/python animations/compression_run.py
-```
-
-The same animation runs on a recording. The exporter reads any file `mbo_utilities.imread` opens (`pml_utilities` is a dependency for this), registers it, compresses it into a cache, and exports one block. A recording has no true traces, so the animation compares against the raw trace and the closing table reports noise and gain relative to raw.
-
-```
-PYTHONPATH=~/repos/masknmf-toolbox ~/envs/pml/.venv/bin/python animations/compression_run.py \
-    --input <movie> --block auto --cache <dir> --out <npz> [--uint16] [--name "<name on screen>"]
-uv run -p 3.12 animations/compression.py --run <npz> --out <dir> --width 1920
-```
-
-`--block auto` chooses the block whose kept candidates look most like one cell: a skewed trace over a compact, centered image, in a block where the second pass keeps more than the first and every kept candidate fits the four rows drawn. It writes `<npz>_blocks.png` with the best blocks; pass one with `--block y,x`. Compression is cached, so another block takes about 90 s. `--uint16` is for Bruker exports, which store uint16 pixels as int16.
-
-## Miller Brain Studio
-
-Three animations of the Studio (`mbo`, from [pml_utilities](https://github.com/FlynnOConnell/pml_utilities)). Every format and feature on screen is the package's own, and the movie is CaImAn's `demoMovie.tif`.
-
-`graphical_abstract`: the files the Studio reads flow in, its core features appear while a movie plays, the files it writes fan out, and the pipelines it runs sit below with their results coming back in.
-
-![graphical_abstract](docs/animations/graphical_abstract.gif)
-
-`suite2p_demo`: the Studio's own windows from the command line to suite2p's results. `mbo ~/data/demoMovie.tif` opens the viewer, Set Metadata gets the frame rate, the Run tab runs suite2p, the ROIs tab shows every ROI the run found, and three grouped cells plot their dF/F on the Traces panel.
-
-![suite2p_demo](docs/animations/suite2p_demo.gif)
-
-`open_scrub_save`: a walkthrough of the Studio's window, from opening the movie through binning to Save as.
-
-![open_scrub_save](docs/animations/open_scrub_save.gif)
-
-```
-uv run -p 3.12 animations/<name>.py --out <dir> [--stills-only] [--gif-width 720]
-```
-
-`graphical_abstract` and `open_scrub_save` read `~/data/demoMovie.tif`. `suite2p_demo` reads the windows and the run stored in `animations/data/suite2p_demo`, which `scripts/studio/` regenerates in an environment with pml_utilities and suite2p: `run_suite2p.py`, `export_suite2p.py`, then `capture_windows.py`. `export_save_as.py` writes the numbers `open_scrub_save` shows.
-
-## masknmf_pipeline
-
-masknmf's pipeline as five manim scenes, from a movie to its traces: `MovieToTrace`, `Registration`, `Compression`, `CompressedMovie` and `SeedsAndDemix`. These are plain `mn.Scene`s rather than kit animations, drawn from one masknmf run on a simulated movie.
-
-```
+```bash
 uv run -p 3.12 animations/masknmf_pipeline.py [<scene> ...] --out <dir> [-q high_quality]
 ```
 
-`animations/data/masknmf_pipeline/run.npz` cannot be regenerated, because its exporter needed imgui_masknmf, which no longer exists.
+### Miller Brain Studio
 
-## The window
+The Studio is the viewer in [pml_utilities](https://github.com/FlynnOConnell/pml_utilities), run as `mbo`. Every format and feature on screen is the package's own.
 
-`imgui-manim-window` explains how masknmf's compression splits a movie into three movies:
+<table>
+<tr>
+<td width="50%"><img src="docs/animations/graphical_abstract.gif" alt="Graphical abstract"><br><code>graphical_abstract</code>: the files the Studio reads and writes, and the pipelines it runs</td>
+<td width="50%"><img src="docs/animations/suite2p_demo.gif" alt="suite2p demo"><br><code>suite2p_demo</code>: the Studio's own windows, from a raw movie to suite2p's cells and traces</td>
+</tr>
+<tr>
+<td><img src="docs/animations/open_scrub_save.gif" alt="Open, scrub, save"><br><code>open_scrub_save</code>: a movie opened, binned and saved as an OME-Zarr</td>
+<td></td>
+</tr>
+</table>
 
-    registered = background + signal + residual
-
-Each page is one manim animation, built from the movie itself and drawn by manim's Cairo camera into an imgui-bundle window. A timeline scrubs the animation forward or back while the movie plays inside its panels. Click a pixel to follow it on every page.
-
-![The Overview animation on demoMovie.tif](docs/animations/masknmf_overview.gif)
-
-masknmf's `CompressionArray` rebuilds a registered frame as
-
-    noise SD x (U V) + mean image + spatial trend x temporal trend
-
-and `decomposition.split_pmd` names the parts:
-
-| piece | contents | in masknmf |
-|-------|----------|------------|
-| background | the mean image plus a slow trend (the maximin spline detrender) | `mean_image + spatial_trend_basis @ temporal_trend_basis` |
-| signal | noise SD x U V: a few smooth components per block, blended | `noise_variance_image * (spatial_compressed @ temporal_compressed)` |
-| residual | registered - background - signal | `CompressionResidualArray` |
-
-| page | chapters |
-|------|----------|
-| [Overview](docs/window/overview.png) | the registered movie shrinks into the first of four panels: = background + signal + residual; four traces per followed pixel: the picked one, then the highest signal SNR |
-| [Raw movie](docs/window/raw.png) | a stack of recorded frames; recorded beside registered; one pixel's trace, recorded and registered |
-| [Background](docs/window/background.png) | the mean image; the trend at one pixel; the background movie; registered - background, the fluctuations |
-| [Residual](docs/window/residual.png) | registered - background - signal; the residual at one pixel against 2 noise SDs; its histogram over every pixel against a normal curve |
-
-The `compression` animation above covers the blocks and the roughness test. The window has no page for them, because its block data came from imgui_masknmf.
-
-Under the animation are the timeline (drag to scrub), the chapters (click one to play from its start), the current chapter's paragraph with this movie's numbers in it, and the movie's frame slider. Space plays and pauses, left and right step chapters, up and down step pages, Esc goes to Overview, and Ctrl +, Ctrl - and Ctrl 0 resize.
+The movie is `demoMovie.tif` from [CaImAn](https://github.com/flatironinstitute/CaImAn), which this repository's license does not cover. `graphical_abstract` and `open_scrub_save` read it from `~/data`:
 
 ```bash
-uv venv -p 3.12 && uv pip install -e ".[dev,window]"
-imgui-manim-window --movie <tif or npy> --fs <Hz> [--negative]
+mkdir -p ~/data
+curl -L -o ~/data/demoMovie.tif https://raw.githubusercontent.com/flatironinstitute/CaImAn/main/example_movies/demoMovie.tif
 ```
 
-`--negative` flips a movie from an indicator that dims with activity. `imgui_ophys` must be checked out beside this repo, and masknmf comes at the version pml_utilities pins. manim draws with cairo and pango, so pycairo and manimpango build from source against the system libraries on Linux. No LaTeX is needed.
+## Write your own
 
-`pytest` runs the model tests. With the `window` extra installed it also runs the window's tests, and one of them opens a hidden window.
+`plugins/manim-animation/skills/manim-animation/` holds a copy of the kit that needs only manim, numpy and pillow, and `example.py`, a three-chapter animation in under 80 lines: a trace, a number, and noise added while the number counts down. Copy both files into your project and edit the example.
 
 ```bash
-python scripts/window/screenshot.py --movie <tif> --fs <Hz>                  # docs/window/<page>.png
-python scripts/window/overview_gif.py --movie <tif> --fs <Hz>                # docs/animations/masknmf_overview.gif
-python scripts/window/demo.py --movie <tif> --fs <Hz> --out tour.mp4         # the real window on a scripted tour
+cd plugins/manim-animation/skills/manim-animation
+uv run -p 3.12 example.py --out out/example
 ```
 
-See [ARCHITECTURE.md](ARCHITECTURE.md).
+### With Claude
+
+The same folder is a [Claude Code](https://claude.com/claude-code) skill. `SKILL.md` holds the rules these animations were built to: the chapter arc, the text and picture rules, the manim traps, and a review checklist. Install it from inside Claude Code:
+
+```
+/plugin marketplace add FlynnOConnell/imgui_manim
+/plugin install manim-animation@imgui-manim
+```
+
+Or copy the folder, with no plugin:
+
+```bash
+cp -r plugins/manim-animation/skills/manim-animation ~/.claude/skills/
+```
+
+Then ask for an animation, naming the method and the model: "make a manim animation of how a running-percentile baseline gives dF/F, from `model.py`". Claude writes the script on the kit, renders the stills, and shows them to you. Send back a list of cuts and it re-renders.
+
+## Building an animation
+
+An animation is a `build()` that returns nested AnimationGroups, on `animations/kit.py`: manim as a drawing engine with a Cairo camera and no `Scene`. `kit.timeline` begins every leaf in time order and `seek(t)` scrubs to any second, so one build gives the stills, the mp4 and the gif. `Count` makes a number react to a morph, and `Play` and `Recolor` step an image or a grid through frames.
+
+Each chapter adds one idea. Titles name the content ("Add noise", "Truncated SVD") or are absent, traces carry scale bars instead of axes, and labels state the thing and its provenance ("Ground truth spikes (simulated)").
+
+Models live in two places. An animation with an imgui_ophys page reads that page's model, so a model change reaches both. `kit.lesson_model(name)` finds it in the installed `imgui_ophys`, and looks in `src/imgui_manim/lessons/<name>/model.py` first for animations that have no page. The colors come from imgui_ophys too. imgui_ophys knows nothing about this repository.
+
+To try a change in a local imgui_ophys checkout:
+
+```bash
+uv run -p 3.12 --with-editable ../imgui_ophys animations/dprime.py --out out/dprime
+```
+
+## Stored data and the window
+
+`animations/data/` and `src/imgui_manim/lessons/` hold the runs and images some animations draw. [docs/data.md](docs/data.md) says where each came from and how to regenerate it.
+
+`imgui-manim-window` draws these animations live in an imgui window, on your own movie: a timeline scrubs each page while the movie plays inside it. See [docs/window.md](docs/window.md).
+
+![The Overview page on demoMovie.tif](docs/animations/masknmf_overview.gif)
+
+## Tests
+
+```bash
+uv venv -p 3.12 && uv pip install -e ".[dev]"
+uv run --no-sync pytest
+```
+
+With the `window` extra installed, `pytest` also runs the window's tests, and one of them opens a hidden window.
+
+See [ARCHITECTURE.md](ARCHITECTURE.md) for how the scrubbing works.
+
+## License
+
+The code is [MIT](LICENSE). The MICrONS images are CC BY 4.0 and the demo movie is CaImAn's, as noted above.

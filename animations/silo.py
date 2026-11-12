@@ -1,6 +1,6 @@
 # /// script
 # requires-python = ">=3.11"
-# dependencies = ["manim>=0.22", "numpy", "pillow<13"]
+# dependencies = ["imgui_ophys @ git+https://github.com/FlynnOConnell/imgui_ophys", "manim>=0.22", "numpy", "pillow<13"]
 # ///
 """
 SILo as one animation: a simulated dendrite strip, one pixel's trace through the matched filter (its events' d'

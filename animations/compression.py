@@ -1,6 +1,6 @@
 # /// script
 # requires-python = ">=3.11"
-# dependencies = ["manim>=0.22", "numpy", "pillow<13"]
+# dependencies = ["imgui_ophys @ git+https://github.com/FlynnOConnell/imgui_ophys", "manim>=0.22", "numpy", "pillow<13"]
 # ///
 """
 masknmf's compression and its temporal denoiser as one animation: a movie cut into overlapping blocks, one block's SVD,

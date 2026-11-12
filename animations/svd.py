@@ -1,6 +1,6 @@
 # /// script
 # requires-python = ">=3.11"
-# dependencies = ["manim>=0.22", "numpy", "pillow<13"]
+# dependencies = ["imgui_ophys @ git+https://github.com/FlynnOConnell/imgui_ophys", "manim>=0.22", "numpy", "pillow<13"]
 # ///
 """
 SVD as one animation: a small image, one rank-1 piece of it as a column times a row, power iteration finding that

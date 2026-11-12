@@ -1,6 +1,6 @@
 # /// script
 # requires-python = ">=3.11"
-# dependencies = ["manim>=0.22", "numpy", "pillow<13", "tifffile", "matplotlib"]
+# dependencies = ["imgui_ophys @ git+https://github.com/FlynnOConnell/imgui_ophys", "manim>=0.22", "numpy", "pillow<13", "tifffile", "matplotlib"]
 # ///
 """
 The Studio from a tif to an OME-Zarr, as one animation: `mbo ~/data/demoMovie.tif` opens the movie, the time slider

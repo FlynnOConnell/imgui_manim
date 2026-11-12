@@ -12,8 +12,11 @@ license = "MIT"
 license-files = ["LICENSE"]
 authors = [{ name = "Flynn OConnell", email = "flynnoconnell@gmail.com" }]
 dependencies = [
+    "imgui_ophys @ git+https://github.com/FlynnOConnell/imgui_ophys",  # the pages' numpy models and colors
+    "manim>=0.22",
     "numpy>=1.23",
-    "pml_utilities @ git+https://github.com/FlynnOConnell/pml_utilities",  # imports as mbo_utilities; reads recordings
+    # manim 0.22.0 can't draw an ImageMobject with pillow 13 (fixed on manim's main in #5074, not yet released)
+    "pillow<13",
 ]
 
 [project.optional-dependencies]
@@ -21,21 +24,20 @@ dev = ["pytest>=7"]
 window = [
     "imgui-bundle==1.92.801",
     "imgui-data-loader>=0.2.0",
-    "imgui_ophys",
-    "manim>=0.22",
-    # manim 0.22.0 can't draw an ImageMobject with pillow 13 (fixed on manim's main in #5074, not yet released)
-    "pillow<13",
     "matplotlib",
     "torch",
     "masknmf",
+    "pml_utilities @ git+https://github.com/FlynnOConnell/pml_utilities",  # imports as mbo_utilities; sets masknmf's version
     "tifffile",
 ]
 
 [project.scripts]
 imgui-manim-window = "imgui_manim.window.app:run"
 
-[tool.uv.sources]
-imgui_ophys = { path = "../imgui_ophys", editable = true }
+[project.urls]
+Homepage = "https://github.com/FlynnOConnell/imgui_manim"
+Source = "https://github.com/FlynnOConnell/imgui_manim"
+Issues = "https://github.com/FlynnOConnell/imgui_manim/issues"
 
 [tool.setuptools.packages.find]
 where = ["src"]

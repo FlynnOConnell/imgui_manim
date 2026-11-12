@@ -1,6 +1,6 @@
 # /// script
 # requires-python = ">=3.11"
-# dependencies = ["manim>=0.22", "numpy", "pillow<13"]
+# dependencies = ["imgui_ophys @ git+https://github.com/FlynnOConnell/imgui_ophys", "manim>=0.22", "numpy", "pillow<13"]
 # ///
 """
 The bAP half of synapse_to_soma, on the same cell: one somatic spike running back up the dendrites as a wave, its delay

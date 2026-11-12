@@ -1,6 +1,6 @@
 # /// script
 # requires-python = ">=3.11"
-# dependencies = ["manim>=0.22", "numpy", "pillow<13", "tifffile", "matplotlib"]
+# dependencies = ["imgui_ophys @ git+https://github.com/FlynnOConnell/imgui_ophys", "manim>=0.22", "numpy", "pillow<13", "tifffile", "matplotlib"]
 # ///
 """
 The Studio as one picture: the files it reads flow in from the left, the Studio in the middle plays a real movie

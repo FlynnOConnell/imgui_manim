@@ -11,7 +11,7 @@ Text only, no LaTeX. Render every scene, or some, into --out:
     uv run -p 3.12 animations/masknmf_pipeline.py --out <dir>                       # 480p15, every scene
     uv run -p 3.12 animations/masknmf_pipeline.py Registration --out <dir> -q high_quality
 
-animations/data/masknmf_pipeline/run.npz cannot be regenerated: its exporter needed imgui_masknmf, which is gone.
+animations/data/masknmf_pipeline/run.npz cannot be regenerated: its exporter no longer exists.
 """
 
 import argparse

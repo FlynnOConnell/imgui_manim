@@ -1,13 +1,13 @@
 # /// script
 # requires-python = ">=3.11"
-# dependencies = ["manim>=0.22", "numpy", "pillow<13"]
+# dependencies = ["imgui_ophys @ git+https://github.com/FlynnOConnell/imgui_ophys", "manim>=0.22", "numpy", "pillow<13"]
 # ///
 """
 SILo's activity image as one animation, everything on screen from the first frame: the mean image of a simulated
 dendrite strip above, and below it the activity image building up frame by frame. Every maximum of the matched-filtered
 movie in x, y and t flashes yellow (by its square) and adds its square to its pixel; synapses' events pile up while the
 bright shaft adds nothing. The sources found at the end are circled. Built from imgui_ophys's SILo model (a port of
-GIAnT-MATLAB checked against it), loaded from ~/repos/imgui_ophys; drawn with kit.py.
+GIAnT-MATLAB checked against it); drawn with kit.py.
 
     uv run -p 3.12 animations/silo_activity.py --out <dir> [--stills-only] [--gif-width 720]
 """

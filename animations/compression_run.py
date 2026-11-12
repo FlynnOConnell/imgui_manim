@@ -3,7 +3,7 @@ masknmf's compression run, on the simulated movie or a recording, saved for anim
 CompressStrategy and CompressDenoiseStrategy, with module functions wrapped only to record what they compute. Needs masknmf,
 torch and mbo_utilities, so it runs in its own environment and the animation reads the npz:
 
-    PYTHONPATH=~/repos/masknmf-toolbox ~/envs/pml/.venv/bin/python animations/compression_run.py [--out <npz>]
+    python animations/compression_run.py [--out <npz>]
 
 A recording is read through mbo_utilities and registered first. The compression is cached, so choosing another block takes
 seconds:

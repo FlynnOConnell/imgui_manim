@@ -22,8 +22,7 @@ import numpy as np
 from PIL import Image
 
 DIR_SRC = Path(__file__).resolve().parents[1] / "src"
-DIR_SRC_OPHYS = Path(__file__).resolve().parents[2] / "imgui_ophys" / "src"  # the hands-on pages, checked out beside this repo
-sys.path.insert(0, str(DIR_SRC_OPHYS))
+sys.path.insert(0, str(DIR_SRC))
 
 from imgui_ophys.palette import ACCENT, BAR, DIM, EDGE, HIGHLIGHT, KEY, PINK, TEXT, TRACE, TRUTH  # noqa: E402, F401
 
@@ -40,12 +39,8 @@ def lesson_model(name: str):
     packages' __init__ files (which import imgui_bundle): every lesson package is stood in for by an empty module that
     only knows its path.
     """
-    package, dir_src = "imgui_manim", DIR_SRC
-    if not (dir_src / package / "lessons" / name / "model.py").exists():
-        package, dir_src = "imgui_ophys", DIR_SRC_OPHYS
-    if str(dir_src) not in sys.path:
-        sys.path.insert(0, str(dir_src))
-    dir_lessons = dir_src / package / "lessons"
+    package = "imgui_manim" if (DIR_SRC / "imgui_manim" / "lessons" / name / "model.py").exists() else "imgui_ophys"
+    dir_lessons = Path(importlib.import_module(package).__file__).parent / "lessons"
     packages = [(f"{package}.lessons", dir_lessons)] + [(f"{package}.lessons.{d.name}", d) for d in dir_lessons.iterdir() if (d / "model.py").exists()]
     for name_package, dir_package in packages:
         if name_package not in sys.modules:
